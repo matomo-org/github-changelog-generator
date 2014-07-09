@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>GitHub Changelog Generator</title>
+    <style>
+        #issues {
+            list-style: none;
+        }
+        #limit {
+            background-color: #eee;font-size: 12px;
+        }
+        #limit.exceeded {
+            background-color: red;font-size: 15px;
+        }
+    </style>
+</head>
+<body>
+    <h1>GitHub Changelog Generator</h1>
+
+    <p title="You will be limited to only 60 requests per hour if you do not provide a token, otherwise 5000."
+        >OAuth2 Token
+        <input type="text" id="authtoken">
+        <a href="https://developer.github.com/v3/oauth_authorizations/#create-a-new-authorization">Help</a>
+    </p>
+
+    <p title="The name of the GitHub repository, for instance 'user/reponame'."
+            >Repository
+        <input type="text" id="repository">
+    </p>
+
+    <hr/>
+
+    <p>
+        List closed issues since
+        <input type="date" id="issuedate" title="Date in format YYYY-MM-DD">
+        <input type="time" id="issuetime" title="Time in format HH:MM">
+        <input type="button" value="Go" id="go" title="Generate changelog">
+        <span id="status"></span>
+    </p>
+
+    <ul id="issues"></ul>
+
+    <p id="limit"></p>
+
+    <script src="jquery-2.1.0.min.js"></script>
+    <script src="changelog-generator.js"></script>
+    <script src="config.js"></script>
+    <script type="text/javascript">
+        setup(config.repository, config.oauthToken);
+    </script>
+</body>
+</html>
