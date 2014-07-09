@@ -18,3 +18,9 @@ config.repository = 'piwik/piwik';
  * @type {string}
  */
 config.oauthToken = '';
+
+/**
+ * Ignore issues having at least one of those labels.
+ * @type {Array}
+ */
+config.labelsToIgnore = ['R: wontfix', 'R: duplicate', 'R: answered', 'R: invalid.', 'invalid', 'wontfix', 'duplicate'];

@@ -12,7 +12,8 @@ It lists the issue number, the issue title and all people who have contributed c
 
 ## Configuration
 
-You can either change the OAuth2 Token and the repository directly in the UI or in the [src/config.js](src/config.js) file.
+You can change the configuration in the [src/config.js](src/config.js) file.
+The OAuth2 Token and the name of the repository can be changed directly in the UI as well.
 
 ## Usage
 

@@ -92,6 +92,10 @@ function fetchIssuesSince (isoDate, page)
 
             $.each(result, function (index, issue) {
 
+                if (hasIssueAnIgnoredLabel(issue)) {
+                    return;
+                }
+
                 if (!issue.closed_at || isDateOlderThan(issue.closed_at, isoDate)) {
                     // this issue was update after isoDate but already closed before, ignore it
                     return;
@@ -112,6 +116,27 @@ function fetchIssuesSince (isoDate, page)
     });
 }
 
+function hasIssueAnIgnoredLabel(issue)
+{
+    if (!issue.labels) {
+        return false;
+    }
+
+    var labelsToIgnore = config.labelsToIgnore;
+    var index, label;
+
+    for (index = 0; index < issue.labels.length; index++) {
+        label = issue.labels[index].name;
+
+        if (-1 !== labelsToIgnore.indexOf(label)) {
+            console.log('issue has an ignored label ', label, issue);
+            return true;
+        }
+    }
+
+    return false;
+}
+
 function isDateOlderThan(isoDate, isoDateToCompare)
 {
     var date1        = new Date(isoDate);
@@ -119,7 +144,12 @@ function isDateOlderThan(isoDate, isoDateToCompare)
 
     var diff = date1 - date2Compare;
 
-    return 0 > diff;
+    if (0 > diff) {
+        console.log(isoDate, ' is older than ', isoDateToCompare);
+        return true;
+    }
+
+    return false;
 }
 
 function logXRateLimit(xhr)
