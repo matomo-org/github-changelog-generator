@@ -1,6 +1,6 @@
 # GitHub Changelog Generator
 
-This tool queries the GitHub Issues API using [CORS](http://en.wikipedia.org/wiki/Cross-origin_resource_sharing) to fetch all issues that were closed since a specific date. While doing this, it keeps track of the number of requests remaining in the current rate limit window. You can provide an OAuth2 Token to increase the number of allowed requests per hour.
+This tool queries the GitHub Issues API using [CORS](http://en.wikipedia.org/wiki/Cross-origin_resource_sharing) to fetch all issues that were closed since a specific date. While doing this, it keeps track of the number of requests remaining in the current rate limit window. You can provide an OAuth2 Token to increase the number of allowed requests per hour. A token can be created for instance through the web UI via the [Application settings page](https://github.com/settings/applications).
 
 For each closed issue it generates a line like this:
 
