@@ -10,8 +10,6 @@ For each closed issue it generates a line like this:
 
 It lists the issue number, the issue title and all people who have contributed code to this issue.
 
-![Screenshot](https://raw.github.com/piwik/github-changelog-generator/master/screenshot.png)
-
 ## Configuration
 
 You can either change the OAuth2 Token and the repository directly in the UI or in the [src/config.js](src/config.js) file.
@@ -23,3 +21,7 @@ Just open the file [src/index.html](src/index.html) in your browser, no server n
 ## License
 
 GPL v3 (or later) see [LICENSE](LICENSE)
+
+## Screenshot
+
+![Screenshot](https://raw.github.com/piwik/github-changelog-generator/master/screenshot.png)
