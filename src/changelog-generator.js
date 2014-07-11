@@ -104,7 +104,7 @@ function fetchIssuesSince (isoDate, page)
                 var authors     = getCommitter(issue, 1);
                 var description = formatChangelogEntry(issue, authors);
 
-                $('#issues').append('<li>' + description + '</li>');
+                $('#issues').append('<li>' + description + '</li>' + "\n");
             });
 
             if (hasNextPage(xhr)) {
