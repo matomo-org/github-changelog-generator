@@ -57,6 +57,10 @@ function onEnd()
 {
     $('#go').attr('disabled', null);
     $('#status').text('');
+
+    var numIssuesClosed = $('ul#issues li').length;
+
+    $('#numIssues').text('Found ' + numIssuesClosed + ' closed issues');
 }
 
 function onLimitExceeded()
