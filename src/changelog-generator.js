@@ -202,8 +202,12 @@ function getCommitter(issue, page)
         success : function(result, xhr) {
 
             $.each(result, function (index, event) {
-                if (event.event != 'referenced') {
+                if (event.event != 'referenced' && event.event != 'closed') {
                     // we want to list only authors who have contributed code
+                    return;
+                }
+
+                if (!event.commit_id) {
                     return;
                 }
 
