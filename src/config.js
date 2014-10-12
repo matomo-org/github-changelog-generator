@@ -23,4 +23,4 @@ config.oauthToken = '';
  * Ignore issues having at least one of those labels.
  * @type {Array}
  */
-config.labelsToIgnore = ['R: wontfix', 'R: duplicate', 'R: answered', 'R: invalid.', 'invalid', 'wontfix', 'duplicate', 'worksforme'];
+config.labelsToIgnore = ['invalid', 'wontfix', 'duplicate', 'worksforme', 'answered'];
