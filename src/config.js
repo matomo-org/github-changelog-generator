@@ -23,4 +23,4 @@ config.oauthToken = '';
  * Ignore issues having at least one of those labels.
  * @type {Array}
  */
-config.labelsToIgnore = ['invalid', 'wontfix', 'duplicate', 'worksforme', 'answered'];
+config.labelsToIgnore = ['invalid', 'wontfix', 'duplicate', 'worksforme', 'answered', 'not-in-changelog'];
