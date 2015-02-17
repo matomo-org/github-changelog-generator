@@ -42,7 +42,47 @@ function setup(repo, token)
         var isoDate = date + 'T' + time + ':00Z';
 
         onStart();
-        fetchIssuesSince(isoDate, 1);
+        fetchIssuesSince([], isoDate, 1);
+    });
+}
+
+function getSortRankingOfLabel(memo, label)
+{
+    var value = _.lastIndexOf(config.sortByLabels, label, false);
+
+    if (value !== -1) {
+        memo += (value + 1);
+    }
+
+    return memo;
+}
+
+function sortIssues(issueA, issueB)
+{
+    var labelsA = getLabelsFromIssue(issueA);
+    var labelsB = getLabelsFromIssue(issueB);
+
+    var indexA = _.reduce(labelsA, getSortRankingOfLabel, 0);
+    var indexB = _.reduce(labelsB, getSortRankingOfLabel, 0);
+
+    if (indexA === indexB) {
+        return 0;
+    }
+
+    return indexA > indexB ? -1 : 1;
+}
+
+function renderIssues(issues)
+{
+    if (config.sortByLabels.length) {
+        issues.sort(sortIssues);
+    }
+
+    $.each(issues, function (index, issue) {
+
+        var description = formatChangelogEntry(issue, issue.authors);
+
+        $('#issues').append('<li>' + description + '</li>' + "\n");
     });
 }
 
@@ -53,12 +93,14 @@ function onStart()
     $('#status').text('Fetching issues in progress');
 }
 
-function onEnd()
+function onEnd(issues)
 {
+    renderIssues(issues);
+
     $('#go').attr('disabled', null);
     $('#status').text('');
 
-    var numIssuesClosed = $('ul#issues li').length;
+    var numIssuesClosed = issues.length;
 
     $('#numIssues').text('Found ' + numIssuesClosed + ' closed issues');
 }
@@ -87,7 +129,7 @@ function formatChangelogEntry(issue, authors)
     return description;
 }
 
-function fetchIssuesSince (isoDate, page)
+function fetchIssuesSince (issues, isoDate, page)
 {
     callGithubApi({
         service : 'repos/' + getRepository() + '/issues',
@@ -105,32 +147,49 @@ function fetchIssuesSince (isoDate, page)
                     return;
                 }
 
-                var authors     = getCommitter(issue, 1);
-                var description = formatChangelogEntry(issue, authors);
-
-                $('#issues').append('<li>' + description + '</li>' + "\n");
+                issue.authors = getCommitter(issue, 1);
+                issues.push(issue);
             });
 
             if (hasNextPage(xhr)) {
-                fetchIssuesSince(isoDate, page + 1);
+                issues = fetchIssuesSince(issues, isoDate, page + 1);
             } else {
-                onEnd();
+                onEnd(issues);
             }
         }
     });
+
+    return issues;
+}
+
+function getLabelsFromIssue(issue)
+{
+    if (!issue.labels) {
+        return [];
+    }
+
+    var labels = [];
+
+    for (index = 0; index < issue.labels.length; index++) {
+        labels.push(issue.labels[index].name);
+    }
+
+    return labels;
 }
 
 function hasIssueAnIgnoredLabel(issue)
 {
-    if (!issue.labels) {
+    var labels = getLabelsFromIssue(issue);
+
+    if (!labels.length) {
         return false;
     }
 
     var labelsToIgnore = config.labelsToIgnore;
     var index, label;
 
-    for (index = 0; index < issue.labels.length; index++) {
-        label = issue.labels[index].name;
+    for (index = 0; index < labels.length; index++) {
+        label = labels[index];
 
         if (-1 !== labelsToIgnore.indexOf(label)) {
             console.log('issue has an ignored label ', label, issue);
