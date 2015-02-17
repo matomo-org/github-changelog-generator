@@ -147,6 +147,11 @@ function fetchIssuesSince (issues, isoDate, page)
                     return;
                 }
 
+                if (isPullRequest(issue) && !isPullRequestMerged(issue)) {
+                    console.log('Ignoring issue as it was not merged', issue);
+                    return;
+                }
+
                 issue.authors = getCommitter(issue, 1);
                 issues.push(issue);
             });
@@ -157,9 +162,21 @@ function fetchIssuesSince (issues, isoDate, page)
                 onEnd(issues);
             }
         }
-    });
+    }, true);
 
     return issues;
+}
+
+function isPullRequest(issue)
+{
+    return !!issue.pull_request;
+}
+
+function isPullRequestMerged(issue)
+{
+    var pullRequest = getPullRequest(issue.pull_request.url);
+
+    return pullRequest && pullRequest.merged;
 }
 
 function getLabelsFromIssue(issue)
@@ -249,11 +266,26 @@ function makeArrayUnique(array){
     });
 }
 
+function getPullRequest(url)
+{
+    var pullRequest;
+
+    callGithubApi({
+        async: false,
+        service : url.replace('https://api.github.com/', ''),
+        success : function(result) {
+            pullRequest = result;
+        }
+    }, false);
+
+    return pullRequest;
+}
+
 function getCommitter(issue, page)
 {
     var authors = [];
 
-    if (issue.pull_request) {
+    if (isPullRequest(issue)) {
         var formatted = formatAuthor(issue.user);
         authors.push(formatted);
     }
@@ -283,7 +315,7 @@ function getCommitter(issue, page)
                 authors = authors.concat(nextPageAuthors);
             }
         }
-    });
+    }, true);
 
     authors = makeArrayUnique(authors);
 
@@ -300,7 +332,7 @@ function getAuthToken()
     return $('#authtoken').val();
 }
 
-function callGithubApi(params)
+function callGithubApi(params, expectArray)
 {
     if (limitExceeded) {
         console.log('Ignoring call to GitHub API, limit exceeded', params);
@@ -333,7 +365,7 @@ function callGithubApi(params)
             params.success = function (result, status, xhr) {
                 console.log('got api response', arguments);
 
-                if (!result || !$.isArray(result)) {
+                if (!result || (expectArray && !$.isArray(result))) {
                     alert('Got an unexpected response');
                     return;
                 }
