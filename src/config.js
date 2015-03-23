@@ -32,4 +32,4 @@ config.labelsToIgnore = ['invalid', 'wontfix', 'duplicate', 'worksforme', 'answe
  *
  * @type {Array}
  */
-config.sortByLabels = ['Bug', 'Task', 'Enhancement', 'Major']
+config.sortByLabels = ['Bug', 'Task', 'Enhancement', 'c: Performance', 'c: Security', 'c: New Plugin', 'Major', 'Critical']
