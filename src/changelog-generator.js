@@ -142,6 +142,10 @@ function fetchIssuesSince (issues, isoDate, page)
                     return;
                 }
 
+                if (hasIssueAnIgnoredMilestone(issue)) {
+                    return;
+                }
+
                 if (!issue.closed_at || isDateOlderThan(issue.closed_at, isoDate)) {
                     // this issue was update after isoDate but already closed before, ignore it
                     return;
@@ -210,6 +214,31 @@ function hasIssueAnIgnoredLabel(issue)
 
         if (-1 !== labelsToIgnore.indexOf(label)) {
             console.log('issue has an ignored label ', label, issue);
+            return true;
+        }
+    }
+
+    return false;
+}
+
+function hasIssueAnIgnoredMilestone(issue)
+{
+    if (!issue || !issue.milestone || !issue.milestone.title) {
+        return false;
+    }
+
+    var milestone = issue.milestone.title;
+
+    var milestonesToIgnore = config.milestonesToIgnore;
+    var index, milestoneToIgnore;
+
+    for (index = 0; index < milestonesToIgnore.length; index++) {
+        milestoneToIgnore = milestonesToIgnore[index];
+
+        var re = new RegExp('/^' + milestoneToIgnore + '$/');
+
+        if (re.test(milestone)) {
+            console.log('issue has an ignored milestone ', milestoneToIgnore, issue);
             return true;
         }
     }
