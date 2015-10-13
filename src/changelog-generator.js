@@ -148,9 +148,16 @@ function formatAuthor(user)
     return '<a href="' + user.html_url + '">@' + user.login + '</a>';
 }
 
+function encodedStr(rawStr)
+{
+    return rawStr.replace(/[\u00A0-\u9999<>\&]/gim, function (i) {
+        return '&#' + i.charCodeAt(0) + ';';
+    });
+}
+
 function formatChangelogEntry(issue, authors)
 {
-    var description = '<a href="' + issue.html_url + '">#' + issue.number + '</a> ' + issue.title;
+    var description = '<a href="' + issue.html_url + '">#' + issue.number + '</a> ' + encodedStr(issue.title);
 
     if (authors.length) {
         description += ' [by ' + authors.join(', ') + ']';
@@ -266,7 +273,7 @@ function hasIssueAnIgnoredMilestone(issue)
     for (index = 0; index < milestonesToIgnore.length; index++) {
         milestoneToIgnore = milestonesToIgnore[index];
 
-        var re = new RegExp('/^' + milestoneToIgnore + '$/');
+        var re = new RegExp( milestoneToIgnore );
 
         if (re.test(milestone)) {
             console.log('issue has an ignored milestone ', milestoneToIgnore, issue);
