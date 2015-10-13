@@ -8,7 +8,7 @@
 var config = {};
 
 /**
- * GitHub Repository to fetch issues from.
+ * GitHub Repository to fetch issues from. Multiple repositories can be specified comma separated.
  * @type {string}
  */
 config.repository = 'piwik/piwik';
