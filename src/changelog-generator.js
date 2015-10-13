@@ -6,6 +6,7 @@
  */
 
 var limitExceeded = false;
+var repositoriesDone;
 
 function setup(repo, token)
 {
@@ -42,7 +43,10 @@ function setup(repo, token)
         var isoDate = date + 'T' + time + ':00Z';
 
         onStart();
-        fetchIssuesSince([], isoDate, 1);
+
+        $.each(getRepositories(), function (index, repository) {
+            fetchIssuesSince(repository, [], isoDate, 1);
+        });
     });
 }
 
@@ -72,37 +76,63 @@ function sortIssues(issueA, issueB)
     return indexA > indexB ? -1 : 1;
 }
 
-function renderIssues(issues)
+function renderIssues(repository, issues)
 {
     if (config.sortByLabels.length) {
         issues.sort(sortIssues);
     }
 
-    $.each(issues, function (index, issue) {
+    var $issues = $('#issues');
 
-        var description = formatChangelogEntry(issue, issue.authors);
+    $issues.append('<li class="repositoryTitle notAnIssue">' + repository + '</li>');
 
-        $('#issues').append('<li>' + description + '</li>' + "\n");
-    });
+    if (issues && issues.length === 0) {
+        $issues.append('<li class="notAnIssue">No issues found</li>' + "\n");
+    } else {
+        $.each(issues, function (index, issue) {
+            var description = formatChangelogEntry(issue, issue.authors);
+
+            $('#issues').append('<li>' + description + '</li>' + "\n");
+        });
+    }
 }
 
 function onStart()
 {
+    repositoriesDone = {};
+
     $('#issues').html('');
     $('#go').attr('disabled', 'disabled');
     $('#status').text('Fetching issues in progress');
+    $('#numIssues').text('');
 }
 
-function onEnd(issues)
+function onEnd(repository)
 {
-    renderIssues(issues);
+    repositoriesDone[repository] = true;
+
+    if (!haveAllRepositoriesEnded()) {
+        return;
+    }
 
     $('#go').attr('disabled', null);
     $('#status').text('');
 
-    var numIssuesClosed = issues.length;
+    var numIssuesClosed = $('#issues').find('li:not(.notAnIssue)').length;
 
     $('#numIssues').text('Found ' + numIssuesClosed + ' closed issues');
+}
+
+function haveAllRepositoriesEnded()
+{
+    var done = true;
+    $.each(getRepositories(), function (i, repository) {
+        if (!(repository in repositoriesDone)) {
+            done = false;
+        }
+    });
+
+    return done;
 }
 
 function onLimitExceeded()
@@ -129,10 +159,10 @@ function formatChangelogEntry(issue, authors)
     return description;
 }
 
-function fetchIssuesSince (issues, isoDate, page)
+function fetchIssuesSince (repository, issues, isoDate, page)
 {
     callGithubApi({
-        service : 'repos/' + getRepository() + '/issues',
+        service : 'repos/' + repository + '/issues',
         data : {since: isoDate, state: 'closed', direction: 'asc', filter: 'all', page: page},
         success : function(result, xhr) {
 
@@ -161,9 +191,10 @@ function fetchIssuesSince (issues, isoDate, page)
             });
 
             if (hasNextPage(xhr)) {
-                issues = fetchIssuesSince(issues, isoDate, page + 1);
+                issues = fetchIssuesSince(repository, issues, isoDate, page + 1);
             } else {
-                onEnd(issues);
+                renderIssues(repository, issues);
+                onEnd(repository);
             }
         }
     }, true);
@@ -321,7 +352,7 @@ function getCommitter(issue, page)
 
     callGithubApi({
         async: false,
-        service : 'repos/' + getRepository() + '/issues/' + issue.number + '/events',
+        service : issue.events_url,
         data : {page: page},
         success : function(result, xhr) {
 
@@ -351,9 +382,9 @@ function getCommitter(issue, page)
     return authors;
 }
 
-function getRepository()
+function getRepositories()
 {
-    return $('#repository').val();
+    return $('#repository').val().split(',');
 }
 
 function getAuthToken()
@@ -368,7 +399,12 @@ function callGithubApi(params, expectArray)
         return;
     }
 
-    params.url   = "https://api.github.com/" + params.service;
+    if (0 === params.service.indexOf('https://')) {
+        params.url = params.service;
+    } else {
+        params.url = "https://api.github.com/" + params.service;
+    }
+
     params.error = function (result) {
         console.log('error fetching resource', result);
 
@@ -389,7 +425,7 @@ function callGithubApi(params, expectArray)
     }
 
     if ($.support.cors) {
-        var success = params.success
+        var success = params.success;
         if ($.isFunction(success)) {
             params.success = function (result, status, xhr) {
                 console.log('got api response', arguments);

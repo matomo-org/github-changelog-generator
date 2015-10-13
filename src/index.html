@@ -13,6 +13,15 @@
         #limit.exceeded {
             background-color: red;font-size: 15px;
         }
+
+        #authtoken,
+        #repository {
+            width: 400px;
+        }
+
+        .repositoryTitle {
+            font-weight: bold;
+        }
     </style>
 </head>
 <body>
@@ -24,8 +33,8 @@
         <a href="https://developer.github.com/v3/oauth_authorizations/#create-a-new-authorization">Help</a>
     </p>
 
-    <p title="The name of the GitHub repository, for instance 'user/reponame'."
-            >Repository
+    <p title="The name of the GitHub repository, for instance 'user/reponame'. Specify multiple repositories comma separated."
+            >Repositories
         <input type="text" id="repository">
     </p>
 
