@@ -84,7 +84,7 @@ function renderIssues(repository, issues)
 
     var $issues = $('#issues');
 
-    $issues.append('<li class="repositoryTitle notAnIssue">' + repository + '</li>');
+    $issues.append("\n\n<br/><div class='notAnIssue'>" + repository + "</div>\n\n");
 
     if (issues && issues.length === 0) {
         $issues.append('<li class="notAnIssue">No issues found</li>' + "\n");
@@ -184,7 +184,7 @@ function fetchIssuesSince (repository, issues, isoDate, page)
                 }
 
                 if (!issue.closed_at || isDateOlderThan(issue.closed_at, isoDate)) {
-                    // this issue was update after isoDate but already closed before, ignore it
+                    console.log('ignore this issue because it was updated within your date range, but it was already closed before', issue);
                     return;
                 }
 
@@ -364,12 +364,15 @@ function getCommitter(issue, page)
         success : function(result, xhr) {
 
             $.each(result, function (index, event) {
-                if (event.event != 'referenced' && event.event != 'closed') {
+                if (event.event != 'referenced' && event.event != 'closed' && event.event != 'assigned') {
                     // we want to list only authors who have contributed code
                     return;
                 }
 
-                if (!event.commit_id) {
+                // the "assigned" event does not require a commit_id as we always credit the assigned user
+                var onlyCreditAuthorWhenCommitFound = (event.event == 'referenced' || event.event == 'closed');
+                if (onlyCreditAuthorWhenCommitFound && !event.commit_id) {
+                    console.log('Found a event.event = ' + event.event + ' but it has no commit_id so we do not credit this author', event);
                     return;
                 }
 
