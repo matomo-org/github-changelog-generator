@@ -36,7 +36,7 @@ Here is the configuration we're using to generate our changelog across our many 
     
     var config = {};
     
-    config.repository = 'piwik/piwik,piwik/piwik-log-analytics,piwik/piwik-php-tracker,piwik/referrer-spam-blacklist,piwik/tracker-proxy,piwik/device-detector,piwik/searchengine-and-social-list,piwik/component-network,piwik/component-ini,piwik/component-decompress,piwik/component-cache,piwik/piwik-package';
+    config.repository = 'piwik/piwik,piwik/piwik-log-analytics,piwik/piwik-php-tracker,piwik/referrer-spam-blacklist,piwik/tracker-proxy,piwik/device-detector,piwik/searchengine-and-social-list,piwik/component-network,piwik/component-ini,piwik/component-decompress,piwik/component-cache,piwik/piwik-package,piwik/piwik-icons';
     
     config.oauthToken = 'secret';
     
