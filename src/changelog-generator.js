@@ -7,6 +7,7 @@
 
 var limitExceeded = false;
 var repositoriesDone;
+var markdown="";
 
 function setup(repo, token)
 {
@@ -22,7 +23,6 @@ function setup(repo, token)
 
         var date = $("#issuedate").val();
         var time = $("#issuetime").val();
-
         if (!date || !time) {
             alert('Please select a date and time.');
             return;
@@ -41,12 +41,25 @@ function setup(repo, token)
         }
 
         var isoDate = date + 'T' + time + ':00Z';
+        markdown="";
 
         onStart();
 
         $.each(getRepositories(), function (index, repository) {
             fetchIssuesSince(repository, [], isoDate, 1);
         });
+    });
+    $('#copyButton').on('click', function(event) {
+        var copyTextarea = document.querySelector('#markdown');
+        copyTextarea.select();
+
+        try {
+            var successful = document.execCommand('copy');
+            var msg = successful ? 'successful' : 'unsuccessful';
+            console.log('Copying text command was ' + msg);
+        } catch (err) {
+            console.log('Oops, unable to copy');
+        }
     });
 }
 
@@ -83,18 +96,24 @@ function renderIssues(repository, issues)
     }
 
     var $issues = $('#issues');
+    var $markdown = $('#markdown');
+
 
     $issues.append("\n\n<br/><div class='notAnIssue'>" + repository + "</div>\n\n");
+    markdown+="\n#### " + repository +"\n";
 
     if (issues && issues.length === 0) {
         $issues.append('<li class="notAnIssue">No issues found</li>' + "\n");
+        markdown+="**" + "No issues found" +"**\n";
     } else {
         $.each(issues, function (index, issue) {
-            var description = formatChangelogEntry(issue, issue.authors);
+            $('#issues').append('<li>' + formatChangelogEntry(issue, issue.authors, true) + '</li>' + "\n");
+            markdown += formatChangelogEntry(issue, issue.authors, false) + '\n';
+            $markdown.val(markdown);
 
-            $('#issues').append('<li>' + description + '</li>' + "\n");
         });
     }
+    $markdown.val(markdown);
 }
 
 function onStart()
@@ -143,9 +162,11 @@ function onLimitExceeded()
     $('#go').attr('disabled', null);
 }
 
-function formatAuthor(user)
-{
-    return '<a href="' + user.html_url + '">@' + user.login + '</a>';
+function formatAuthor(user) {
+    return {
+        html: '<a href="' + user.html_url + '">@' + user.login + '</a>',
+        markdown: '[@' + user.login + '](' + user.html_url + ')'
+    };
 }
 
 function encodedStr(rawStr)
@@ -155,12 +176,22 @@ function encodedStr(rawStr)
     });
 }
 
-function formatChangelogEntry(issue, authors)
+function formatChangelogEntry(issue, authors, html)
 {
-    var description = '<a href="' + issue.html_url + '">#' + issue.number + '</a> ' + encodedStr(issue.title);
+    var description;
+    if (html) {
+        description = '<a href="' + issue.html_url + '">#' + issue.number + '</a> ' + encodedStr(issue.title);
+    } else {
+        description = '[#' + issue.number + '](' + issue.html_url + ') ' + encodedStr(issue.title);
+    }
 
     if (authors.length) {
-        description += ' [by ' + authors.join(', ') + ']';
+        description += ' [by ' + authors.map(function(author){
+            if (html) {
+                return author.html
+            }
+            return author.markdown
+        }).join(', ') + ']';
     }
 
     return description;
