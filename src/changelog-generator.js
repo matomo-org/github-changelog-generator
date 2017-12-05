@@ -100,7 +100,7 @@ function renderIssues(repository, issues)
 
 
     $issues.append("\n\n<br/><div class='notAnIssue'>" + repository + "</div>\n\n");
-    markdown+="\n## " + repository +"\n";
+    markdown+="\n#### " + repository +"\n";
 
     if (issues && issues.length === 0) {
         $issues.append('<li class="notAnIssue">No issues found</li>' + "\n");
