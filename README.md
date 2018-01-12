@@ -30,13 +30,13 @@ The OAuth2 Token and the name of the repository can be changed directly in the U
 
 ### sample config.js file
 
-This generator was created for the [Piwik analytics](http://piwik.org/) project to generate our [Release changelogs](http://piwik.org/changelog/).
+This generator was created for the [Matomo analytics](http://matomo.org/) project to generate our [Release changelogs](http://matomo.org/changelog/).
 
 Here is the configuration we're using to generate our changelog across our many projects and repositories:
     
     var config = {};
-    
-    config.repository = 'piwik/piwik,piwik/piwik-log-analytics,piwik/piwik-php-tracker,piwik/referrer-spam-blacklist,piwik/tracker-proxy,piwik/device-detector,piwik/searchengine-and-social-list,piwik/component-network,piwik/component-ini,piwik/component-decompress,piwik/component-cache,piwik/piwik-package,piwik/piwik-icons';
+     
+    config.repository = 'matomo-org/matomo,matomo-org/matomo-log-analytics,matomo-org/matomo-php-tracker,matomo-org/referrer-spam-blacklist,matomo-org/tracker-proxy,matomo-org/device-detector,matomo-org/searchengine-and-social-list,matomo-org/component-network,matomo-org/component-ini,matomo-org/component-decompress,matomo-org/component-cache,matomo-org/matomo-package,matomo-org/matomo-icons';
     
     config.oauthToken = 'secret';
     
@@ -44,7 +44,7 @@ Here is the configuration we're using to generate our changelog across our many 
     
     config.milestonesToIgnore = ['3.0.0'];
     
-    config.sortByLabels = ['RFC', 'c: i18n', 'c: Website piwik.org', 'Bug', 'c: Platform', 'Task', 'c: Accessibility', 'c: Usability', 'c: Design / UI', 'Regression', 'c: Performance', 'Enhancement',  'c: Security', 'c: New plugin', 'Major', 'Critical'];
+    config.sortByLabels = ['RFC', 'c: i18n', 'c: Website matomo.org', 'Bug', 'c: Platform', 'Task', 'c: Accessibility', 'c: Usability', 'c: Design / UI', 'Regression', 'c: Performance', 'Enhancement',  'c: Security', 'c: New plugin', 'Major', 'Critical'];
 
 
 ## Usage
@@ -57,4 +57,4 @@ GPL v3 (or later) see [LICENSE](LICENSE)
 
 ## Screenshot
 
-![Screenshot](https://raw.github.com/piwik/github-changelog-generator/master/screenshot.png)
+![Screenshot](https://raw.github.com/matomo-org/github-changelog-generator/master/screenshot.png)
