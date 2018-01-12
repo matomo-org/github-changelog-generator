@@ -11,7 +11,7 @@ var config = {};
  * GitHub Repository to fetch issues from. Multiple repositories can be specified comma separated.
  * @type {string}
  */
-config.repository = 'piwik/piwik';
+config.repository = 'matomo-org/matomo';
 
 /**
  * See https://developer.github.com/v3/oauth_authorizations/#create-a-new-authorization
