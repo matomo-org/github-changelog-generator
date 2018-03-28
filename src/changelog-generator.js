@@ -157,6 +157,9 @@ function encodedStr(rawStr)
 
 function formatChangelogEntry(issue, authors)
 {
+    authors = authors.filter(function (item, pos, self) {
+        return self.indexOf(item) === pos;
+    });
     var description = '<a href="' + issue.html_url + '">#' + issue.number + '</a> ' + encodedStr(issue.title);
 
     if (authors.length) {
@@ -364,7 +367,7 @@ function getCommitter(issue, page)
         success : function(result, xhr) {
 
             $.each(result, function (index, event) {
-                if (event.event != 'referenced' && event.event != 'closed' && event.event != 'assigned') {
+                if (event.event != 'closed' && event.event != 'assigned' && event.event != 'merged') {
                     // we want to list only authors who have contributed code
                     return;
                 }
