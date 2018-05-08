@@ -20,6 +20,12 @@ config.repository = 'matomo-org/matomo';
 config.oauthToken = '';
 
 /**
+ * regex used to exclude PRs.
+ * @type {string}
+ */
+config.exclusionRegex = '\\[TG-\\d+\\]$';
+
+/**
  * Ignore issues having at least one of those labels.
  * @type {Array}
  */
