@@ -91,18 +91,19 @@ function renderIssues(repository, issues)
     }
 
     if (issues && issues.length === 0) {
-        if (!isMainRepository) {
-            $issues.append("  ");
+        if (isMainRepository) {
+            $issues.prepend("  * No changes\n");
+        } else {
+            $issues.append("    * No changes\n");
         }
-        $issues.append("  * No changes\n");
     } else {
         $.each(issues, function (index, issue) {
             var description = formatChangelogEntry(issue, repository);
-            if (!isMainRepository) {
-                description = "  " + description;
+            if (isMainRepository) {
+                $('#issues').prepend( description + "\n" );
+            } else {
+                $('#issues').append("  " + description + "\n");
             }
-
-            $('#issues').append(description + "\n");
         });
     }
 }
