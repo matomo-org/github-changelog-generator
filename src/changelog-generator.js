@@ -78,21 +78,32 @@ function sortIssues(issueA, issueB)
 
 function renderIssues(repository, issues)
 {
+    var isMainRepository = repository === 'diffblue/test-gen';
+
     if (config.sortByLabels.length) {
         issues.sort(sortIssues);
     }
 
     var $issues = $('#issues');
 
-    $issues.append("\n\n<br/><div class='notAnIssue'>" + repository + "</div>\n\n");
+    if (!isMainRepository) {
+        $issues.append("  * " + repository + " changes\n");
+    }
 
     if (issues && issues.length === 0) {
-        $issues.append('<li class="notAnIssue">No issues found</li>' + "\n");
+        if (isMainRepository) {
+            $issues.prepend("  * No changes\n");
+        } else {
+            $issues.append("    * No changes\n");
+        }
     } else {
         $.each(issues, function (index, issue) {
-            var description = formatChangelogEntry(issue, issue.authors);
-
-            $('#issues').append('<li>' + description + '</li>' + "\n");
+            var description = formatChangelogEntry(issue, repository);
+            if (isMainRepository) {
+                $('#issues').prepend( description + "\n" );
+            } else {
+                $('#issues').append("  " + description + "\n");
+            }
         });
     }
 }
@@ -155,16 +166,9 @@ function encodedStr(rawStr)
     });
 }
 
-function formatChangelogEntry(issue, authors)
+function formatChangelogEntry(issue, repository)
 {
-    authors = authors.filter(function (item, pos, self) {
-        return self.indexOf(item) === pos;
-    });
-    var description = '<a href="' + issue.html_url + '">#' + issue.number + '</a> ' + encodedStr(issue.title);
-
-    if (authors.length) {
-        description += ' [by ' + authors.join(', ') + ']';
-    }
+    var description = '  * ' + encodedStr(issue.title) + ' (' + repository + '#' + issue.number + ')'
 
     return description;
 }
@@ -196,7 +200,7 @@ function fetchIssuesSince (repository, issues, isoDate, page)
                     return;
                 }
 
-                issue.authors = getCommitter(issue, 1);
+                //issue.authors = getCommitter(issue, 1);
                 issues.push(issue);
             });
 
