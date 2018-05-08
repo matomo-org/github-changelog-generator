@@ -8,7 +8,7 @@
 var limitExceeded = false;
 var repositoriesDone;
 
-function setup(repo, token)
+function setup(repo, token, exclusionRegex)
 {
     if (repo) {
         $('#repository').val(repo);
@@ -16,6 +16,10 @@ function setup(repo, token)
 
     if (token) {
         $('#authtoken').val(token);
+    }
+
+    if (exregex) {
+        $('#exregex').val(exclusionRegex);
     }
 
     $("#go").on('click', function() {
@@ -200,6 +204,11 @@ function fetchIssuesSince (repository, issues, isoDate, page)
                     return;
                 }
 
+                if( isIssueExcluded(issue) ) {
+                    console.log('Ignoring issue due to exclusion regex.', issue);
+                    return;
+                }
+
                 //issue.authors = getCommitter(issue, 1);
                 issues.push(issue);
             });
@@ -264,6 +273,15 @@ function hasIssueAnIgnoredLabel(issue)
     }
 
     return false;
+}
+
+function isIssueExcluded(issue)
+{
+    var exclusionRegexText = getExclusionRegex();
+    if( exclusionRegexText === '') {
+        return false;
+    }
+    return (new RegExp(exclusionRegexText)).test(issue.title)
 }
 
 function hasIssueAnIgnoredMilestone(issue)
@@ -407,6 +425,11 @@ function getRepositories()
 function getAuthToken()
 {
     return $('#authtoken').val();
+}
+
+function getExclusionRegex()
+{
+    return $('#exregex').val();
 }
 
 function callGithubApi(params, expectArray)

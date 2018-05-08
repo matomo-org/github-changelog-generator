@@ -16,7 +16,8 @@
         }
 
         #authtoken,
-        #repository {
+        #repository,
+        #exregex {
             width: 400px;
         }
 
@@ -37,6 +38,11 @@
     <p title="The name of the GitHub repository, for instance 'user/reponame'. Specify multiple repositories comma separated."
             >Repositories
         <input type="text" id="repository">
+    </p>
+
+    <p title="Regex used to exclude PRs."
+            >Exclusion regex
+        <input type="text" id="exregex">
     </p>
 
     <hr/>
@@ -60,7 +66,7 @@
     <script src="changelog-generator.js"></script>
     <script src="config.js"></script>
     <script type="text/javascript">
-        setup(config.repository, config.oauthToken);
+        setup(config.repository, config.oauthToken, config.exclusionRegex);
     </script>
 </body>
 </html>
