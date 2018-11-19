@@ -36,7 +36,7 @@ Here is the configuration we're using to generate our changelog across our many 
     
     var config = {};
      
-    config.repository = 'matomo-org/matomo,matomo/tag-manager,matomo-org/matomo-log-analytics,matomo-org/matomo-php-tracker,matomo-org/referrer-spam-blacklist,matomo-org/tracker-proxy,matomo-org/device-detector,matomo-org/searchengine-and-social-list,matomo-org/component-network,matomo-org/component-ini,matomo-org/component-decompress,matomo-org/component-cache,matomo-org/matomo-package,matomo-org/matomo-icons';
+    config.repository = 'matomo-org/matomo,matomo-org/tag-manager,matomo-org/matomo-log-analytics,matomo-org/matomo-php-tracker,matomo-org/referrer-spam-blacklist,matomo-org/tracker-proxy,matomo-org/device-detector,matomo-org/searchengine-and-social-list,matomo-org/component-network,matomo-org/component-ini,matomo-org/component-decompress,matomo-org/component-cache,matomo-org/matomo-package,matomo-org/matomo-icons';
     
     config.oauthToken = 'secret';
     
