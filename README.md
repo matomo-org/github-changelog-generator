@@ -40,9 +40,9 @@ Here is the configuration we're using to generate our changelog across our many 
     
     config.oauthToken = 'secret';
     
-    config.labelsToIgnore = ['invalid', 'wontfix', 'duplicate', 'worksforme', 'answered', 'not-in-changelog'];
+    config.labelsToIgnore = ['invalid', 'wontfix', 'duplicate', 'worksforme', 'answered', 'question', 'not-in-changelog'];
     
-    config.milestonesToIgnore = ['3.0.0'];
+    config.milestonesToIgnore = ['4.0.0*'];
     
     config.sortByLabels = ['RFC', 'c: i18n', 'c: Website matomo.org', 'Bug', 'c: Platform', 'Task', 'c: Accessibility', 'c: Usability', 'c: Design / UI', 'Regression', 'c: Performance', 'Enhancement',  'c: Security', 'c: New plugin', 'Major', 'Critical'];
 
