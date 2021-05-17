@@ -35,16 +35,17 @@ This generator was created for the [Matomo analytics](http://matomo.org/) projec
 Here is the configuration we're using to generate our changelog across our many projects and repositories:
     
     var config = {};
-     
-    config.repository = 'matomo-org/matomo,matomo-org/tag-manager,matomo-org/matomo-log-analytics,matomo-org/matomo-php-tracker,matomo-org/referrer-spam-blacklist,matomo-org/tracker-proxy,matomo-org/device-detector,matomo-org/searchengine-and-social-list,matomo-org/component-network,matomo-org/component-ini,matomo-org/component-decompress,matomo-org/component-cache,matomo-org/matomo-package,matomo-org/matomo-icons';
-    
+
+    config.repository = 'matomo-org/matomo,matomo-org/tag-manager,matomo-org/matomo-log-analytics,matomo-org/matomo-php-tracker,matomo-org/referrer-spam-list,matomo-org/tracker-proxy,matomo-org/device-detector,matomo-org/searchengine-and-social-list,matomo-org/component-network,matomo-org/component-ini,matomo-org/component-decompress,matomo-org/component-cache,matomo-org/matomo-icons';
+
     config.oauthToken = 'secret';
-    
-    config.labelsToIgnore = ['invalid', 'wontfix', 'duplicate', 'worksforme', 'answered', 'question', 'not-in-changelog'];
-    
-    config.milestonesToIgnore = ['4.0.0*'];
-    
-    config.sortByLabels = ['RFC', 'c: i18n', 'c: Website matomo.org', 'Bug', 'c: Platform', 'Task', 'c: Accessibility', 'c: Usability', 'c: Design / UI', 'Regression', 'c: Performance', 'Enhancement',  'c: Security', 'c: New plugin', 'Major', 'Critical'];
+
+    config.labelsToIgnore = ['invalid', 'wontfix', 'duplicate', 'worksforme', 'answered', 'question', 'not-in-changelog', 'c: i18n'];
+
+    config.milestonesToIgnore = ['^3.*'];
+
+    config.sortByLabels = ['RFC', 'c: i18n', 'c: Website matomo.org', 'Bug', 'c: Platform', 'Task', 'c: Accessibility', 'c: Usability', 'c: Design / UI', 'c: Onboarding', 'Regression', 'c: Performance', 'Enhancement',  'c: Security', 'c: Privacy', 'c: New plugin', 'Major', 'Critical']
+
 
 
 ## Usage
