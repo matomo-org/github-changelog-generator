@@ -26,10 +26,10 @@ config.oauthToken = '';
 config.labelsToIgnore = ['invalid', 'wontfix', 'duplicate', 'worksforme', 'answered', 'not-in-changelog'];
 
 /**
- * Ignore issues that are assigned to one of these milestones. Supports regex.
+ * Ignore issues that are assigned to one milestone containing this string. Supports regex. eg. ^3.* will exclude issues with milestones starting with 3.
  * @type {Array}
  */
-config.milestonesToIgnore = ['3.0.0(.*)'];
+config.milestonesToIgnore = ['^3.*'];
 
 /**
  * Issues will be sorted by those labels. An issue having the label 'Major' will be listed first while an issue having
