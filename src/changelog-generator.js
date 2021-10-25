@@ -20,32 +20,35 @@ function setup(repo, token)
 
     $("#go").on('click', function() {
 
-        var date = $("#issuedate").val();
-        var time = $("#issuetime").val();
+        var startDate = $("#issue-startdate").val();
+        var startTime = $("#issue-starttime").val();
+        var endDate   = $("#issue-enddate").val();
+        var endTime   = $("#issue-endtime").val();
 
-        if (!date || !time) {
-            alert('Please select a date and time.');
+        if (!(startDate && endDate && startTime && endTime)) {
+            alert('Please select start and end dates and times.');
             return;
         }
 
         var dateCheck = /^20\d{2}-\d{2}-\d{2}$/;
-        if (!dateCheck.test(date)) {
+        if (!dateCheck.test(startDate) || !dateCheck.test(endDate)) {
             alert('Date must be in format YYYY-MM-DD');
             return;
         }
 
         var timeCheck = /^\d{2}:\d{2}$/;
-        if (!timeCheck.test(time)) {
+        if (!timeCheck.test(startTime) || !timeCheck.test(endTime)) {
             alert('Time must be in format HH:MM');
             return;
         }
 
-        var isoDate = date + 'T' + time + ':00Z';
+        var startIsoDate = startDate + 'T' + startTime + ':00Z';
+        var endIsoDate = endDate + 'T' + endTime + ':00Z';
 
         onStart();
 
         $.each(getRepositories(), function (index, repository) {
-            fetchIssuesSince(repository, [], isoDate, 1);
+            fetchIssuesBetween(repository, [], startIsoDate, endIsoDate, 1);
         });
     });
 }
@@ -169,11 +172,11 @@ function formatChangelogEntry(issue, authors)
     return description;
 }
 
-function fetchIssuesSince (repository, issues, isoDate, page)
+function fetchIssuesBetween (repository, issues, startIsoDate, endIsoDate, page)
 {
     callGithubApi({
         service : 'repos/' + repository + '/issues',
-        data : {since: isoDate, state: 'closed', direction: 'asc', filter: 'all', page: page},
+        data : {since: startIsoDate, state: 'closed', direction: 'asc', filter: 'all', page: page},
         success : function(result, xhr) {
 
             $.each(result, function (index, issue) {
@@ -186,8 +189,13 @@ function fetchIssuesSince (repository, issues, isoDate, page)
                     return;
                 }
 
-                if (!issue.closed_at || isDateOlderThan(issue.closed_at, isoDate)) {
+                if (!issue.closed_at || isDateOlderThan(issue.closed_at, startIsoDate)) {
                     console.log('ignore this issue because it was updated within your date range, but it was already closed before', issue);
+                    return;
+                }
+
+                if (isDateOlderThan(endIsoDate, issue.closed_at)) {
+                    console.log('ignore this issue because it was closed after your date range', issue);
                     return;
                 }
 
@@ -201,7 +209,7 @@ function fetchIssuesSince (repository, issues, isoDate, page)
             });
 
             if (hasNextPage(xhr)) {
-                issues = fetchIssuesSince(repository, issues, isoDate, page + 1);
+                issues = fetchIssuesBetween(repository, issues, startIsoDate, endIsoDate, page + 1);
             } else {
                 renderIssues(repository, issues);
                 onEnd(repository);

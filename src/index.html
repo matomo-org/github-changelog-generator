@@ -41,9 +41,13 @@
     <hr/>
 
     <p>
-        List closed issues since date (YYYY-MM-DD)
-	<input type="date" id="issuedate" title="Date in format YYYY-MM-DD">
-        at time (HH:MM) <input type="time" id="issuetime" title="Time in format HH:MM">
+        List closed issues <br/>from date (YYYY-MM-DD)
+	<input type="date" id="issue-startdate" title="Date in format YYYY-MM-DD">
+        at time (HH:MM) <input type="time" id="issue-starttime" title="Time in format HH:MM">
+        <br/>until date (YYYY-MM-DD)
+        <input type="date" id="issue-enddate" title="Date in format YYYY-MM-DD">
+        at time (HH:MM) <input type="time" id="issue-endtime" title="Time in format HH:MM">
+
         <input type="button" value="Go" id="go" title="Generate changelog">
         <span id="status"></span>
     </p>
