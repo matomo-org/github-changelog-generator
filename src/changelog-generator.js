@@ -181,6 +181,11 @@ function fetchIssuesBetween (repository, issues, startIsoDate, endIsoDate, page)
 
             $.each(result, function (index, issue) {
 
+                if (issue.state_reason === "not_planned") {
+                    console.log('ignore this issue because it was closed as not planned', issue);
+                    return;
+                }
+
                 if (hasIssueAnIgnoredLabel(issue)) {
                     return;
                 }
