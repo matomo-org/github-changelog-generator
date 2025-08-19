@@ -23,13 +23,19 @@ config.oauthToken = '';
  * Ignore issues having at least one of those labels.
  * @type {Array}
  */
-config.labelsToIgnore = ['invalid', 'wontfix', 'duplicate', 'worksforme', 'answered', 'not-in-changelog'];
+config.labelsToIgnore = ['invalid', 'wontfix', 'duplicate', 'worksforme', 'answered', 'not-in-changelog', 'c: Tests & QA', 'c: Premium plugins'];
 
 /**
  * Ignore issues that are assigned to one milestone containing this string. Supports regex. eg. ^3.* will exclude issues with milestones starting with 3.
  * @type {Array}
  */
-config.milestonesToIgnore = ['^3.*'];
+config.milestonesToIgnore = ['^3.*', '^4.*'];
+
+/**
+ * Ignore issues/pull requests that were created by the listed authors
+ * @type {Array}
+ */
+config.authorsToIgnore = ['weblate', 'dependabot[bot]', 'innocraft-deploys']
 
 /**
  * Issues will be sorted by those labels. An issue having the label 'Major' will be listed first while an issue having

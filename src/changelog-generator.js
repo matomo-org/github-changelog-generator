@@ -79,6 +79,26 @@ function sortIssues(issueA, issueB)
     return indexA > indexB ? -1 : 1;
 }
 
+function combineReferencedIssues(issues) {
+    var referenced = [];
+
+    $.each(issues, function (index, issue) {
+        if (issue.references && issue.references.length > 0) {
+            $.each(issue.references, function (rIndex, reference) {
+                var enrichedIssue = issues.find((i) => i.number === reference.number);
+                if (enrichedIssue && enrichedIssue.authors) {
+                    issues[index].authors = makeArrayUnique(issue.authors.concat(enrichedIssue.authors));
+                } else {
+                    issues[index].authors.push(formatAuthor(reference.user))
+                }
+                referenced.push(reference.number);
+            })
+        }
+    });
+
+    return issues.filter(issue => referenced.indexOf(issue.number) === -1);
+}
+
 function renderIssues(repository, issues)
 {
     if (config.sortByLabels.length) {
@@ -163,7 +183,15 @@ function formatChangelogEntry(issue, authors)
     authors = authors.filter(function (item, pos, self) {
         return self.indexOf(item) === pos;
     });
-    var description = '<a href="' + issue.html_url + '">#' + issue.number + '</a> ' + encodedStr(issue.title);
+    var description = '<a href="' + issue.html_url + '">#' + issue.number + '</a>';
+
+    if (issue.references && issue.references.length > 0) {
+        $.each(issue.references, function (index, reference) {
+            description += ', <a href="' + reference.html_url + '">#' + reference.number + '</a>';
+        })
+    }
+
+    description += ' ' + encodedStr(issue.title);
 
     if (authors.length) {
         description += ' [by ' + authors.join(', ') + ']';
@@ -186,7 +214,16 @@ function fetchIssuesBetween (repository, issues, startIsoDate, endIsoDate, page)
                     return;
                 }
 
+                if (issue.state_reason === "duplicate") {
+                    console.log('ignore this issue because it was closed as duplicate', issue);
+                    return;
+                }
+
                 if (hasIssueAnIgnoredLabel(issue)) {
+                    return;
+                }
+
+                if (isIssueFromIgnoredAuthor(issue)) {
                     return;
                 }
 
@@ -204,18 +241,28 @@ function fetchIssuesBetween (repository, issues, startIsoDate, endIsoDate, page)
                     return;
                 }
 
-                if (isPullRequest(issue) && !isPullRequestMerged(issue)) {
-                    console.log('Ignoring issue as it was not merged', issue);
-                    return;
+                if (isPullRequest(issue)) {
+                    var pullRequest = getPullRequest(issue.pull_request.url);
+
+                    if (!isPullRequestMerged(pullRequest)) {
+                        console.log('Ignoring pull request as it was closed unmerged', pullRequest);
+                        return;
+                    }
+
+                    if (!(!!pullRequest.base.ref.match(/^(?:\d\.){1,2}x-dev$/) || pullRequest.base.ref === 'next_release')) {
+                        console.log('Ignoring pull request as it did not target a release branch', pullRequest);
+                        return;
+                    }
                 }
 
-                issue.authors = getCommitter(issue, 1);
+                [issue.authors, issue.references] = getCommitterAndReferencedIssues(issue, startIsoDate, endIsoDate, 1);
                 issues.push(issue);
             });
 
             if (hasNextPage(xhr)) {
                 issues = fetchIssuesBetween(repository, issues, startIsoDate, endIsoDate, page + 1);
             } else {
+                issues = combineReferencedIssues(issues);
                 renderIssues(repository, issues);
                 onEnd(repository);
             }
@@ -230,10 +277,8 @@ function isPullRequest(issue)
     return !!issue.pull_request;
 }
 
-function isPullRequestMerged(issue)
+function isPullRequestMerged(pullRequest)
 {
-    var pullRequest = getPullRequest(issue.pull_request.url);
-
     return pullRequest && pullRequest.merged;
 }
 
@@ -270,6 +315,22 @@ function hasIssueAnIgnoredLabel(issue)
             console.log('issue has an ignored label ', label, issue);
             return true;
         }
+    }
+
+    return false;
+}
+
+function isIssueFromIgnoredAuthor(issue)
+{
+    if (!issue.user.login) {
+        return false;
+    }
+
+    var authorsToIgnore = config.authorsToIgnore;
+
+    if (-1 !== authorsToIgnore.indexOf(issue.user.login)) {
+        console.log('issue is from an ignored author ', issue);
+        return true;
     }
 
     return false;
@@ -364,9 +425,10 @@ function getPullRequest(url)
     return pullRequest;
 }
 
-function getCommitter(issue, page)
+function getCommitterAndReferencedIssues(issue, startIsoDate, endIsoDate, page)
 {
     var authors = [];
+    var issues = [];
 
     if (isPullRequest(issue)) {
         var formatted = formatAuthor(issue.user);
@@ -375,19 +437,28 @@ function getCommitter(issue, page)
 
     callGithubApi({
         async: false,
-        service : issue.events_url,
+        service : issue.timeline_url,
         data : {page: page},
         success : function(result, xhr) {
 
             $.each(result, function (index, event) {
-                if (event.event != 'closed' && event.event != 'assigned' && event.event != 'merged') {
+                if (event.event === 'cross-referenced') {
+                    if (
+                        (!isPullRequest(issue) && isPullRequest(event.source.issue) && isPullRequestMerged(getPullRequest(event.source.issue.pull_request.url)))
+                        || (isPullRequest(issue) && !isPullRequest(event.source.issue))
+                    ) {
+                        issues.push(event.source.issue);
+                    }
+                    return;
+                }
+
+                if (event.event !== 'closed' && event.event !== 'assigned' && event.event !== 'merged') {
                     // we want to list only authors who have contributed code
                     return;
                 }
 
                 // the "assigned" event does not require a commit_id as we always credit the assigned user
-                var onlyCreditAuthorWhenCommitFound = (event.event == 'referenced' || event.event == 'closed');
-                if (onlyCreditAuthorWhenCommitFound && !event.commit_id) {
+                if (event.event === 'closed' && !event.commit_id) {
                     console.log('Found a event.event = ' + event.event + ' but it has no commit_id so we do not credit this author', event);
                     return;
                 }
@@ -397,15 +468,17 @@ function getCommitter(issue, page)
             });
 
             if (hasNextPage(xhr)) {
-                var nextPageAuthors = getCommitter(issue, page + 1);
+                var [nextPageAuthors, nextPageIssues] = getCommitterAndReferencedIssues(issue, startIsoDate, endIsoDate, page + 1);
                 authors = authors.concat(nextPageAuthors);
+                issues = issues.concat(nextPageIssues);
             }
         }
     }, true);
 
     authors = makeArrayUnique(authors);
+    issues = makeArrayUnique(issues);
 
-    return authors;
+    return [authors, issues];
 }
 
 function getRepositories()
